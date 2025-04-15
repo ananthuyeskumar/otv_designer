@@ -187,51 +187,20 @@ def otv_sizing(
     }
 
 
+# Tests
 
-#####################
-
-st.title("OTV Configuration Designer")
-
-
-st.header("Fligth Dynamics Requirements")
-
-st.subheader("Altitude Change")
-
-h1 = st.number_input("Enter Initial Altitude", value=500)
-h2 = st.number_input("Enter Final Altitude", value=600)
-
-delta_v_budget = 0
-
-result = choose_transfer(h1, h2)
+result = choose_transfer(500, 600)
 print(f"Best method for altitude change: {result['method']}, Total Δv: {result['delta_v_kms']:.3f} km/s")
-st.write("Delta-V Required", result['delta_v_kms'])
 
-delta_v_budget += result['delta_v_kms']
 
-st.subheader("Inclination Change")
-
-h_incl = st.number_input("Enter Altitude", value=500)
-inc = st.number_input("Enter Change in Inclination", value=5)
-
-dv_inc = inclination_change_delta_v(h_incl, inc)  # 30-degree plane change at 500 km altitude
+dv_inc = inclination_change_delta_v(500, 30)  # 30-degree plane change at 500 km altitude
 print(f"Delta-v required for inclination change: {dv_inc:.3f} km/s")
 
-st.write("Delta-V Required", dv_inc)
-
-delta_v_budget += dv_inc
-
-st.subheader("LTAN Change")
-
-h_ltan = st.number_input("Enter Initial Altitude", value=500, key='h_ltan')
-ltan_i = st.number_input("Enter Initial LTAN (hours)", value=9, key='ltan_i')
-ltan_f = st.number_input("Enter Final LTAN (hours)", value=6, key='ltan_f')
-ltan_dur = st.number_input("Enter duration (days)", value=90, key= 'ltan_dur')
-
 result = ltan_drift_adjustment(
-    initial_ltan_hours=ltan_i,
-    target_ltan_hours=ltan_f,
-    initial_altitude_km=h_ltan,
-    duration_days=ltan_dur
+    initial_ltan_hours=10.5,
+    target_ltan_hours=6,
+    initial_altitude_km=500,
+    duration_days=30
 )
 
 print(f"New altitude: {result['new_altitude_km']} km")
@@ -239,15 +208,9 @@ print(f"New inclination: {result['new_inclination_deg']:.3f}°")
 print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
 print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
 
-st.write("Delta-V Required", result['total_delta_v_kms'])
 
-delta_v_budget += result['total_delta_v_kms']
-
-print("Overall total delta-v required: {:.3f} km/s".format(delta_v_budget))
-
-st.write("Total Delta-V Required", delta_v_budget)
-
-config = otv_sizing(payload_mass_kg=500, total_delta_v_kms=delta_v_budget,isp_sec=300)
+#### Sizing test ####
+config = otv_sizing(payload_mass_kg=500, total_delta_v_kms=3,isp_sec=300)
 
 for k, v in config.items():
     print(f"{k}: {v:.3f}" if isinstance(v, float) else f"{k}: {v}")
