@@ -57,10 +57,10 @@ if module == "Flight Dynamics":
         st.subheader("Phase Maneuver")
         ph_col1, ph_col2 = st.columns(2)
         with ph_col1:
-        h_phase = st.number_input("Initial Orbit Altitude (km)", 300, 2000, value=450, key="h_phase")
-        phase_angle = st.number_input("Desired Phase Angle (deg)", 1.0, 359.0, value=90.0)
+            h_phase = st.number_input("Initial Orbit Altitude (km)", 300, 2000, value=450, key="h_phase")
+            phase_angle = st.number_input("Desired Phase Angle (deg)", 1.0, 359.0, value=90.0)
         with ph_col2:
-        num_orbits = st.number_input("Number of Orbits to Phase", 1, 100, value=18)
+            num_orbits = st.number_input("Number of Orbits to Phase", 1, 100, value=18)
 
         phase_result = find_phasing_orbit(
         h_initial_km=h_phase,
