@@ -219,24 +219,24 @@ print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
 print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
 
 def phasing(h_initial_km, phase_deg, num_orbits):
-    from math import pi
+    
     mu = 398600.4418  # km^3/s^2
     R_earth = 6378.0  # km
 
     r1 = R_earth + h_initial_km
-    T1 = 2 * pi * sqrt(r1**3 / mu)
+    T1 = 2 * pi * math.sqrt(r1**3 / mu)
 
     phase_fraction = phase_deg / 360
     T_drift = T1 * (1 - phase_fraction / num_orbits)
 
-    a_drift = (mu * (T_drift / (2 * pi))**2) ** (1/3)
+    a_drift = (mu * (T_drift / (2 * math.pi))**2) ** (1/3)
     r2 = 2 * a_drift - r1  # Solving for elliptical orbit
 
-    phasing_orbit_period_min = 2 * pi * sqrt(a_drift**3 / mu) / 60
+    phasing_orbit_period_min = 2 * math.pi * math.sqrt(a_drift**3 / mu) / 60
     total_drift_time_min = T_drift * num_orbits / 60
 
-    dv1 = sqrt(mu / r1) * (sqrt(2 * r2 / (r1 + r2)) - 1)
-    dv2 = sqrt(mu / r2) * (1 - sqrt(2 * r1 / (r1 + r2)))
+    dv1 = math.sqrt(mu / r1) * (math.sqrt(2 * r2 / (r1 + r2)) - 1)
+    dv2 = math.sqrt(mu / r2) * (1 - math.sqrt(2 * r1 / (r1 + r2)))
     total_delta_v_km_s = abs(dv1) + abs(dv2)
 
     return {
