@@ -174,43 +174,39 @@ def otv_sizing(
     thrust = weight * thrust_to_weight_ratio  # N
 
     return {
-        "payload_mass_kg": payload_mass_kg,
         "structural_mass_kg": structural_mass,
         "propellant_mass_kg": propellant_mass,
         "total_mass_kg": m0,
         "payload_fraction": payload_mass_kg / m0,
         "propellant_fraction": propellant_mass / m0,
-        "structural_fraction": structural_mass / m0,
         "thrust_N": thrust,
-        "thrust_to_weight_ratio": thrust_to_weight_ratio,
-        "isp_sec": isp_sec
     }
 
 
-# Tests
+# # Tests
 
-result = choose_transfer(500, 600)
-print(f"Best method for altitude change: {result['method']}, Total Δv: {result['delta_v_kms']:.3f} km/s")
-
-
-dv_inc = inclination_change_delta_v(500, 30)  # 30-degree plane change at 500 km altitude
-print(f"Delta-v required for inclination change: {dv_inc:.3f} km/s")
-
-result = ltan_drift_adjustment(
-    initial_ltan_hours=10.5,
-    target_ltan_hours=6,
-    initial_altitude_km=500,
-    duration_days=30
-)
-
-print(f"New altitude: {result['new_altitude_km']} km")
-print(f"New inclination: {result['new_inclination_deg']:.3f}°")
-print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
-print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
+# result = choose_transfer(500, 600)
+# print(f"Best method for altitude change: {result['method']}, Total Δv: {result['delta_v_kms']:.3f} km/s")
 
 
-#### Sizing test ####
-config = otv_sizing(payload_mass_kg=500, total_delta_v_kms=3,isp_sec=300)
+# dv_inc = inclination_change_delta_v(500, 30)  # 30-degree plane change at 500 km altitude
+# print(f"Delta-v required for inclination change: {dv_inc:.3f} km/s")
 
-for k, v in config.items():
-    print(f"{k}: {v:.3f}" if isinstance(v, float) else f"{k}: {v}")
+# result = ltan_drift_adjustment(
+#     initial_ltan_hours=10.5,
+#     target_ltan_hours=6,
+#     initial_altitude_km=500,
+#     duration_days=30
+# )
+
+# print(f"New altitude: {result['new_altitude_km']} km")
+# print(f"New inclination: {result['new_inclination_deg']:.3f}°")
+# print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
+# print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
+
+
+# #### Sizing test ####
+# config = otv_sizing(payload_mass_kg=500, total_delta_v_kms=3,isp_sec=300)
+
+# for k, v in config.items():
+#     print(f"{k}: {v:.3f}" if isinstance(v, float) else f"{k}: {v}")
