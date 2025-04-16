@@ -55,7 +55,7 @@ if module == "Flight Dynamics":
     with ph_col2:
         num_orbits = st.number_input("Number of Orbits to Phase", 1, 100, value=18)
 
-    phase_result = find_phasing_orbit(
+    phase_result = phasing(
         h_initial_km=h_phase,
         phase_deg=phase_angle,
         num_orbits=num_orbits
