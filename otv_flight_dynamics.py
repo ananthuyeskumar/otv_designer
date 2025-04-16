@@ -219,7 +219,7 @@ print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
 print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
 
 def phasing(h_initial_km, phase_deg, num_orbits):
-
+    from math import pi
     mu = 398600.4418  # km^3/s^2
     R_earth = 6378.0  # km
 
