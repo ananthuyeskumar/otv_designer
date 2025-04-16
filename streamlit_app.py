@@ -57,7 +57,7 @@ if module == "Flight Dynamics":
 
 
 elif module == "OTV Sizing":
-    st.subheader("OTV Sizing")
+    st.header("OTV Sizing")
 
     otv_pld = st.number_input("Enter Payload Mass (kg)", 10, 5000, value=500)
     otv_dv = st.number_input("Enter Total Delta-V (km/s)", 0.1, 10.0, value=2.0)
@@ -77,6 +77,6 @@ elif module == "OTV Sizing":
     st.metric(label="Propellant Fraction", value=config["propellant_fraction"])
     st.metric(label="Thrust (N)", value=config["thrust_N"])
 
-elif module == "OTV Sizing":
-    st.subheader("Commercial")
+elif module == "Commercial":
+    st.header("Commercial")
     st.write("This module is under development. Please check back later!")
