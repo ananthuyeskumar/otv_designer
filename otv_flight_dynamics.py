@@ -4,6 +4,7 @@ import streamlit as st
 # Constants
 MU_EARTH = 398600.4418  # Earth's standard gravitational parameter, km^3/s^2
 R_EARTH = 6371.0         # Earth's radius in km
+J2 = 1.08262668e-3      # Earth's J2 perturbation coefficient
 
 def orbital_velocity(radius):
     return math.sqrt(MU_EARTH / radius)
@@ -77,6 +78,28 @@ def inclination_change_delta_v(altitude_km, delta_inclination_deg):
     delta_v = 2 * v * math.sin(delta_i_rad / 2)
     return delta_v
 
+def sso_inclination(alt_km):
+
+    r = R_EARTH + alt_km  # orbital radius in km
+    a = r             # circular orbit, so semi-major axis = radius
+
+    # Mean motion n [rad/s]
+    n = math.sqrt(MU_EARTH / a**3)
+
+    # Desired RAAN precession rate for sun-synch [rad/s]
+    # Earth orbits Sun once per ~365.2422 days
+    dOmega_dt_target = 2 * math.pi / (365.2422 * 86400)  # ≈ -1.99106e-7 rad/s
+
+    # Solve for inclination using J2 perturbation equation:
+    cos_i = -2 * dOmega_dt_target * (a**2) / (3 * J2 * R_EARTH**2 * n)
+    
+    if abs(cos_i) > 1:
+        raise ValueError("Invalid parameters: no possible SSO inclination at this altitude.")
+
+    i_rad = math.acos(cos_i)
+    i_deg = math.degrees(i_rad)
+    
+    return i_deg
 
 def ltan_drift_adjustment(
     initial_ltan_hours,
@@ -84,9 +107,6 @@ def ltan_drift_adjustment(
     initial_altitude_km,
     duration_days
 ):
-    J2 = 1.08263e-3
-    mu = MU_EARTH
-    R = R_EARTH
 
     # Convert LTAN difference to degrees
     delta_ltan_deg = (target_ltan_hours - initial_ltan_hours) * 15  # 15 deg/hour
@@ -100,9 +120,9 @@ def ltan_drift_adjustment(
 
     # Try a range of altitudes to find one that works
     for h in range(400, 900, 5):  # altitudes in km
-        a = R + h
-        n = math.sqrt(mu / a**3)  # rad/s
-        drift_factor = -1.5 * J2 * (R**2) * n / (a**2)
+        a = R_EARTH + h
+        n = math.sqrt(MU_EARTH / a**3)  # rad/s
+        drift_factor = -1.5 * J2 * (R_EARTH**2) * n / (a**2)
 
         # Required inclination to match the drift rate
         drift_rate_rad_per_sec = math.radians(required_drift_rate) / 86400  # deg/day -> rad/sec
@@ -113,18 +133,12 @@ def ltan_drift_adjustment(
             i_deg = math.degrees(i_rad)
 
             # Estimate delta-v just to change altitude + inclination (not optimized!)
-            current_r = R + initial_altitude_km
-            new_r = R + h
-            # v1 = orbital_velocity(current_r)
-            # v2 = orbital_velocity(new_r)
-            # dv_alt = abs(v2 - v1)
+            current_r = R_EARTH + initial_altitude_km
+            new_r = R_EARTH + h
 
+            delta_i_rad = abs(i_rad - math.radians(sso_inclination(initial_altitude_km)))  # Typical SSO inclination
 
-            delta_i_rad = abs(i_rad - math.radians(98.6))  # Typical SSO inclination
-            # dv_inc = 2 * v2 * math.sin(delta_i_rad / 2)
-            # total_dv = dv_alt + dv_inc
-
-            total_dv = hohmann_delta_v(current_r, new_r) + inclination_change_delta_v(h,math.degrees(delta_i_rad))
+            total_dv = 2 * (hohmann_delta_v(current_r, new_r) + inclination_change_delta_v(h,math.degrees(delta_i_rad)))
 
             if total_dv < min_dv:
                 min_dv = total_dv
@@ -192,17 +206,17 @@ def otv_sizing(
 # dv_inc = inclination_change_delta_v(500, 30)  # 30-degree plane change at 500 km altitude
 # print(f"Delta-v required for inclination change: {dv_inc:.3f} km/s")
 
-# result = ltan_drift_adjustment(
-#     initial_ltan_hours=10.5,
-#     target_ltan_hours=6,
-#     initial_altitude_km=500,
-#     duration_days=30
-# )
+result = ltan_drift_adjustment(
+    initial_ltan_hours=10.5,
+    target_ltan_hours=6,
+    initial_altitude_km=500,
+    duration_days=120
+)
 
-# print(f"New altitude: {result['new_altitude_km']} km")
-# print(f"New inclination: {result['new_inclination_deg']:.3f}°")
-# print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
-# print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
+print(f"New altitude: {result['new_altitude_km']} km")
+print(f"New inclination: {result['new_inclination_deg']:.3f}°")
+print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
+print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
 
 
 # #### Sizing test ####
@@ -210,3 +224,5 @@ def otv_sizing(
 
 # for k, v in config.items():
 #     print(f"{k}: {v:.3f}" if isinstance(v, float) else f"{k}: {v}")
+
+# print(sso_inclination(500))  # Should return the SSO inclination for 500 km altitude
