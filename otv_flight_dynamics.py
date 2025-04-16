@@ -218,6 +218,49 @@ print(f"New inclination: {result['new_inclination_deg']:.3f}°")
 print(f"Total Δv: {result['total_delta_v_kms']:.3f} km/s")
 print(f"Drift rate: {result['required_drift_deg_per_day']:.4f} deg/day over {result['duration_days']} days")
 
+def find_phasing_orbit(h_initial_km, phase_deg, num_orbits):
+    # Constants
+    mu = 398600  # km^3/s^2, Earth gravitational parameter
+    R_earth = 6378  # km
+
+    # Initial orbit radius and period
+    r1 = R_earth + h_initial_km
+    T1 = 2 * math.pi * math.sqrt(r1**3 / mu)  # seconds
+
+    # Time difference needed for phase
+    phase_fraction = phase_deg / 360.0
+    desired_time_diff = T1 * phase_fraction  # seconds
+
+    # Time difference per orbit
+    delta_T = desired_time_diff / num_orbits
+
+    # Target period of drift orbit
+    T2 = T1 - delta_T  # drift orbit should be faster (lower orbit)
+
+    # Solve for drift orbit radius from Kepler’s 3rd Law
+    r2 = (mu * (T2 / (2 * math.pi))**2) ** (1 / 3)
+
+    # Convert to altitude
+    h_drift_km = r2 - R_earth
+
+    # Δv calculations (Hohmann transfer)
+    a_transfer = (r1 + r2) / 2
+    v1 = math.sqrt(mu / r1)
+    v2 = math.sqrt(mu / r2)
+    v_perigee = math.sqrt(mu * (2 / r1 - 1 / a_transfer))
+    v_apogee = math.sqrt(mu * (2 / r2 - 1 / a_transfer))
+
+    delta_v1 = abs(v_perigee - v1)
+    delta_v2 = abs(v_apogee - v2)
+    total_delta_v = delta_v1 + delta_v2
+
+    return {
+        "phasing_orbit_altitude_km": round(h_drift_km, 2),
+        "drift_orbit_period_min": round(T2 / 60, 2),
+        "total_drift_time_min": round(num_orbits * T2 / 60, 2),
+        "total_delta_v_km_s": round(total_delta_v, 4),
+        "orbits_required": num_orbits
+    }
 
 # #### Sizing test ####
 # config = otv_sizing(payload_mass_kg=500, total_delta_v_kms=3,isp_sec=300)
