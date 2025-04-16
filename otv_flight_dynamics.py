@@ -134,6 +134,7 @@ def ltan_drift_adjustment(
                     "total_delta_v_kms": total_dv,
                     "required_drift_deg_per_day": required_drift_rate,
                     "duration_days": duration_days
+                    "inclination_deg": i_deg 
                 }
 
     return best_solution
