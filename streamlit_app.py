@@ -46,31 +46,31 @@ if module == "Flight Dynamics":
         st.markdown(f"<span style='color:blue; font-size:16px;'>**Drift Orbit Inclination (deg)**: {result['new_inclination_deg']:.2f}</span>", unsafe_allow_html=True)
         st.markdown(f"<span style='color:blue; font-size:16px;'>**Drift Orbit Altitude (km)**: {result['new_altitude_km']:.2f}</span>", unsafe_allow_html=True)
 
-    # 🛠 FIXED: Phase Maneuver block
+    
     st.subheader("Phase Maneuver")
     ph_col1, ph_col2 = st.columns(2)
-
     with ph_col1:
         h_phase = st.number_input("Initial Orbit Altitude (km)", 300, 2000, value=450, key="h_phase")
         phase_angle = st.number_input("Desired Phase Angle (deg)", 1.0, 359.0, value=90.0)
-
     with ph_col2:
         num_orbits = st.number_input("Number of Orbits to Phase", 1, 100, value=18)
 
-    # ✅ Compute phase result OUTSIDE the columns
     phase_result = find_phasing_orbit(
         h_initial_km=h_phase,
         phase_deg=phase_angle,
         num_orbits=num_orbits
     )
 
-    # ✅ Display results
     st.markdown(f"<span style='color:red; font-size:16px;'>**Delta-V Required (km/s)**: {phase_result['total_delta_v_km_s']:.5f}</span>", unsafe_allow_html=True)
     st.markdown(f"<span style='color:blue; font-size:16px;'>**Phasing Orbit Altitude (km)**: {phase_result['phasing_orbit_altitude_km']:.2f}</span>", unsafe_allow_html=True)
-    st.markdown(f"<span style='color:blue; font-size:16px;'>**Drift Orbit Period (min)**: {phase_result['drift_orbit_period_min']:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color:blue; font-size:16px;'>**Drift Orbit Period (min)**: {phase_result['phasing_orbit_period_min']:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"<span style='color:blue; font-size:16px;'>**Total Drift Time (min)**: {phase_result['total_drift_time_min']:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color:purple; font-size:16px;'>**Phasing Orbit Apoapsis (km)**: {phase_result['apoapsis_km']:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color:purple; font-size:16px;'>**Phasing Orbit Periapsis (km)**: {phase_result['periapsis_km']:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color:orange; font-size:15px;'>Note: The phasing orbit is elliptical, chosen to match the desired phase angle over {num_orbits} orbits.</span>", unsafe_allow_html=True)
 
     delta_v_budget += phase_result['total_delta_v_km_s']
+
 
     # Summary
     st.markdown("---")
