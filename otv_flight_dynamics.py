@@ -224,7 +224,7 @@ def phasing(h_initial_km, phase_deg, num_orbits):
     R_earth = 6378.0  # km
 
     r1 = R_earth + h_initial_km
-    T1 = 2 * pi * math.sqrt(r1**3 / mu)
+    T1 = 2 * math.pi * math.sqrt(r1**3 / mu)
 
     phase_fraction = phase_deg / 360
     T_drift = T1 * (1 - phase_fraction / num_orbits)
