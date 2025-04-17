@@ -113,7 +113,7 @@ def ltan_drift_adjustment(
     # Normalize to [-180, 180]
     delta_ltan_deg = ((delta_ltan_deg + 180) % 360) - 180
     # Required nodal drift rate (deg/day)
-    required_drift_rate = delta_ltan_deg / duration_days
+    required_drift_rate = (delta_ltan_deg / duration_days) + 0.9856
 
     best_solution = None
     min_dv = float('inf')
@@ -199,7 +199,7 @@ def otv_sizing(
 
 # # Tests
 
-# result = choose_transfer(500, 600)
+# result = choose_transfer(550, 450)
 # print(f"Best method for altitude change: {result['method']}, Total Δv: {result['delta_v_kms']:.3f} km/s")
 
 
@@ -207,10 +207,10 @@ def otv_sizing(
 # print(f"Delta-v required for inclination change: {dv_inc:.3f} km/s")
 
 result = ltan_drift_adjustment(
-    initial_ltan_hours=10.5,
-    target_ltan_hours=6,
-    initial_altitude_km=500,
-    duration_days=120
+    initial_ltan_hours=9,
+    target_ltan_hours=6.5,
+    initial_altitude_km=450,
+    duration_days=80
 )
 
 print(f"New altitude: {result['new_altitude_km']} km")
@@ -255,4 +255,4 @@ def phasing(h_initial_km, phase_deg, num_orbits):
 # for k, v in config.items():
 #     print(f"{k}: {v:.3f}" if isinstance(v, float) else f"{k}: {v}")
 
-# print(sso_inclination(500))  # Should return the SSO inclination for 500 km altitude
+# print(sso_inclination(550))  # Should return the SSO inclination for 500 km altitude
